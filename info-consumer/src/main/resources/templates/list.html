@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap3/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="../js/bootstrap3/css/bootstrap.css">
+    <script src="../js/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+    <link rel="stylesheet" href="../js/bootstrap-treeview/bootstrap-treeview.min.css">
+    <script src="../js/bootStrap-addTabs/bootstrap.addtabs.js"></script>
+    <link rel="stylesheet" href="../js/bootStrap-addTabs/bootstrap.addtabs.css">
+
+    <link rel="stylesheet" href="../js/bootstrap-table/bootstrap-table.css">
+    <script src="../js/bootstrap-table/bootstrap-table.js"></script>
+    <script src="../js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+
+    <script src="../js/bootstrap-bootbox/bootbox.all.min.js"></script>
+</head>
+
+
+<body>
+<form id="pro_from" class="form-inline">
+    <div class="form-group">
+        <label>用户名字</label>
+        <br>
+        <input type="text" class="form-control"  id="tuserId" placeholder="用户名字">
+    </div>
+    <br>
+
+    <button type="button" class="btn btn-success" onclick="queryData()">搜索</button>
+    <button type="button" class="btn btn-Warning" onclick="addUser()">新增</button>
+    <button type="button" class="btn btn-info" onclick="deleteById()">批删</button>
+
+</form>
+<table id="dataGrid"></table>
+</body>
+<script>
+    $(function () {
+        queryTable();
+    })
+
+    function queryTable() {
+        $("#dataGrid").bootstrapTable({
+            url: "../queryInfoList",
+            method: 'post',
+            striped: true,  	// 斑马线效果     默认false
+            //只允许选中一行
+            singleSelect: false,
+            //选中行是不选中复选框或者单选按钮
+            clickToSelect: true,
+            showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+            cardView: false,                    //是否显示详细视图
+            uniqueId: "id",                 //每一行的唯一标识，一般为主键列
+            showColumns: true,                  //是否显示所有的列
+            showRefresh: true,                  //是否显示刷新按钮
+            minimumCountColumns: 2,     //  最少留两列
+            detailView: false,                  //是否显示父子表
+            toolbar: '#tabToolBar',   //  工具定义位置
+            sidePagination: 'client',  //server后台分页
+            toolbar: '#toolbar',
+            pagination: true, //是否展示分页
+            pageList: [2, 4, 8, 10],//分页组件
+            pageNumber: 1,
+            pageSize: 3,//默认每页条数
+            //启动回车键做搜索功能
+            searchOnEnterKey: true,
+            //设置为false 将禁止所有列的排序。
+            sortable: true,
+            //设置默认排序为 name,直接对应数据库的字段
+            sortName: 'id',
+            //定义排序方式，'asc' 或者 'desc'。
+            sortOrder: "desc",
+            //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
+            // 设置为limit可以获取limit, offset, search, sort, order
+            queryParamsType: 'undefined',
+            // 请求服务器数据
+            queryParams: function queryParams(params) {
+                var param = {
+
+                };
+                return param;
+            },
+            columns: [
+                {field: 'checkbox', checkbox: true},  //开启复选框
+                {field: 'tid', title: '编号', width: 300},      //  列    field   代表是 后台  传过来的值
+                {field: 'name', title: '名称', width: 300},
+                {field: 'jibie', title: '级别', width: 300},
+                {field: 'sheng', title: '省/市', width: 300},
+                {field: 'people', title: '经办人', width: 300},
+                {field: 'peopled', title: '联系人', width: 300},
+
+                {field: 'status', title: '状态', width: 300},
+
+                {field: 'XXX', title: '操作', width: 300,
+                    formatter: function (value,row,index){
+                        /*var content = "    <a href='javascript:update(&quot;"+row.tid+"&quot;)'>修改</a>  <a href='javascript:deleteA(&quot;"+row.tid+"&quot;)'>删除</a>";*/
+                        var content = " <input type='button' class='btn btn-info' value='查看'  onclick='updateBil(&quot;"+row.tid+"&quot;)'>         <input type='button' class='btn btn-danger' value='删除' onclick='deleteA(&quot;"+row.tid+"&quot;)'>     <input type='button' class='btn btn-primary' value='编辑' onclick='selectById(&quot;"+row.tid+"&quot;)'>"
+                        return content;
+
+                    }
+
+
+                }
+
+            ]
+        });
+
+    }
+
+
+
+    function deleteA(tid) {
+        alert(tid);
+        $.ajax({
+            url:'../deleteA',
+            data:{tid:tid},
+            type:'post',
+            success:function () {
+                $("#dataGrid").bootstrapTable("refresh");
+            }
+        })
+    }
+    var res;
+    function createAddContent(url) {
+        $.ajax({
+            url: url,
+            async: false,
+            success: function (data) {
+                res = data;
+            }
+        });
+        return res;
+    }
+    function addUser() {
+        bootbox.dialog({
+            title: '新增用户',
+            message: createAddContent("../toAddUserPage"),
+            closeButton: true,//是否显示关闭按钮
+            buttons: {
+                "success": {
+                    "label": "<i class='icon-ok'></i> 保存",
+                    "className": "btn-sm btn-success",
+                    "callback": function () {
+                        alert("22222");
+                        $.ajax({
+                            url: '../addUser',
+                            type: 'post',
+                            cache:false,
+                            data: $("#addFromBil").serialize(),
+                            success: function () {
+
+                                //刷新表格
+                                location.href=location;
+                                /* $("#dataGrid").bootstrapTable("refresh");*/
+
+                            }, error: function () {
+                                alert("新增失败");
+                            }
+
+                        });
+                    }
+                },
+                "cancel": {
+                    "label": "<i class='icon-info'></i> 取消",
+                    "className": "btn-sm btn-danger",
+                    "callback": function () {
+
+                    }
+                }
+            }
+
+        });
+
+
+
+
+    }
+    function queryData(){
+        $("#dataGrid").bootstrapTable("refresh", {
+            "query": {
+
+                "user": $("#tuserId").val()
+            }
+        });
+
+    }
+
+
+    function updateBil(tid) {
+        location.href="../selectById";
+        $.ajax({
+            url:'../selectById',
+            data:{tid:tid},
+            type:'post',
+            success:function (data) {
+
+            }
+        })
+    }
+</script>
+</html>

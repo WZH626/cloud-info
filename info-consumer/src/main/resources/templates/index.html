@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap3/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="../js/bootstrap3/css/bootstrap.css">
+    <script src="../js/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+    <link rel="stylesheet" href="../js/bootstrap-treeview/bootstrap-treeview.min.css">
+    <script src="../js/bootStrap-addTabs/bootstrap.addtabs.js"></script>
+    <link rel="stylesheet" href="../js/bootStrap-addTabs/bootstrap.addtabs.css">
+
+    <link rel="stylesheet" href="../js/bootstrap-table/bootstrap-table.css">
+    <script src="../js/bootstrap-table/bootstrap-table.js"></script>
+    <script src="../js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+
+    <script src="../js/bootstrap-bootbox/bootbox.all.min.js"></script>
+
+
+</head>
+<body>
+
+<div class="row clearfix">
+    <div class="col-md-2 column">
+        <div id="myTree"></div>
+    </div>
+    <div class="col-md-10 column">
+        <!-- 选项卡  tabs -->
+        <ul id="myTab" class="nav nav-tabs">
+            <li role="presentation" class="active">
+                <a href="#home" aria-controls="home" role="tab" data-toggle="tab">欢迎</a>
+            </li>
+        </ul>
+        <!--想要打开tab页内容，需要把对应的ul和要打开的内容tab放在一个div里  -->
+        <div class="tab-content">
+            <div role="tabpanel" style="" class="tab-pane active " id="home">
+                <img alt="正在加载....." src="../image/timg.jpg" width="80%"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+
+    $(function(){
+        initTree();
+    })
+    function initTree(){
+        $.ajax({
+            url:'../queryTreeList',
+            type: "post",
+            dataType: "json",
+            success: function(data){
+                $("#myTree").treeview({
+                    data:data,
+                    onNodeSelected:function(event,node) {
+                        $.addtabs({iframeHeight: 550});
+                        $.addtabs.add({
+                            id:node.id,
+                            title:node.text,
+                            url:"../"+node.url
+                        });
+                    }
+                })
+            }
+        })
+    }
+</script>
+</html>
